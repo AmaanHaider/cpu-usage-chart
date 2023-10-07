@@ -25,7 +25,7 @@ io.on('connection', (client) => {
         value: cpuPercent
       });
     });
-  }, 1500);
+  }, 1000);
 
   client.on('disconnect', () => {
     clearInterval(cpuInterval); 
