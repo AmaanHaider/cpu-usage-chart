@@ -1,6 +1,8 @@
 const http = require('http');
 const os = require('os-utils');
 require('dotenv').config();
+const cors = require("cors");
+
 const PORT = process.env.PORT || 3000; 
 
 const server = http.createServer((req, res) => {
