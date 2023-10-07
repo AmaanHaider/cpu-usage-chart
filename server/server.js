@@ -1,29 +1,37 @@
-const server = require('http').createServer();
-const os = require('os-utils')
-require("dotenv").config();
-const PORT = process.env.PORT
+const http = require('http');
+const os = require('os-utils');
+require('dotenv').config();
+const PORT = process.env.PORT || 3000; 
 
-
-const io = require('socket.io')(server,{
-    transport:['websoket','polling']
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { 'Content-Type': 'text/plain' });
+  res.end('WebSocket server running');
 });
 
-let tick =0;
+const io = require('socket.io')(server, {
+  transports: ['websocket', 'polling'],
+  cors: {
+    origin: process.env.CLIENT_URL
+  }
+});
 
-io.on('connection',client=>{
-    setInterval(()=>{
-        os.cpuUsage((cpuPercent)=>{
-            client.emit('cpu',{
-                name:tick++,
-                value:cpuPercent
-            })
-        });
+let tick = 0;
 
-    },1500)
-})
+io.on('connection', (client) => {
+  const cpuInterval = setInterval(() => {
+    os.cpuUsage((cpuPercent) => {
+      client.emit('cpu', {
+        name: tick++,
+        value: cpuPercent
+      });
+    });
+  }, 1500);
+
+  client.on('disconnect', () => {
+    clearInterval(cpuInterval); 
+  });
+});
 
 server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-  
-  
+  console.log(`Server is running on port ${PORT}`);
+});
